@@ -1,0 +1,95 @@
+The README is used to answer questions posed by the professor. 
+The Questions and programming assignment can be found in the PDF.
+
+Threadmentor is used to manage concurrent threads. 
+    https://www.cs.mtu.edu/~shene/NSF-3/e-Book/index.html
+    http://www.csl.mtu.edu/cs4411.ck/www/FAQ.html
+
+It has been setup and tested on Ubuntu 14.04 x64
+    make
+    ./prog4 e r t 
+		e = How Many Elves 
+		r = How many reindeer
+		t = How many years before retirement 
+
+    Warnings will be Generated, Do not mind them
+
+// ----------------------------------------------------------- 
+// NAME : Kyler Witting                      User ID: kmwittin 
+// DUE DATE : 04/01/2016
+// PROGRAM ASSIGNMENT 4
+// FILE NAME : README
+// PROGRAM PURPOSE :
+//      The Makefile that answers the questions from the assignment
+// -----------------------------------------------------------
+
+1. Question: How do you guarantee that only three elves will ask questions?
+
+2. Question: Show that why no elf will leave before the questions are answered.
+
+3. Question: Show that while three elves are waiting for an answer, no other 
+elves can cut in and ask questions.
+
+4. Question: How do you guarantee that Santa only answers question while he 
+is not sleeping.
+
+5. Question: Show that when Santa is wakened up by a reindeer, this reindeer 
+is the last one coming back from vacation.
+
+6. Question: How do you make sure Santa always handles reindeers first.
+
+7. Question: Show that while Santa is attaching the sleigh and delivering 
+toys, all reindeers are there. They won't sneak out for vacation.
+
+8. Question: Show that while Santa is attaching the sleigh and delivering 
+toys, elves will not ask questions.
+
+------------------------------------------------------------------------------
+
+1. Each Elf thread starts with a Queue Wait. This queue wait only accepts 3 
+elves at a time. All other elves will wait in this queue for FIFO. The signal
+to continue this queue is only signalled after Santa has helped the elves. 
+
+2. All the elves that are waiting on an answer call Wait() for santa's answer. 
+This Signal to continue is only given out after Santa has fully answered 
+their question and is going back to sleep. 
+
+3. Each elf calls Queue.Wait() one time. It is signaled 3 times at the start 
+of the santa thread. So the first 3 elves to get to that point, are accepted 
+into the queue. The 4th elf to reach the queue has to wait there because 
+the semaphore is no longer accepting processes into the CS. Once Santa answers
+the question, the queue is opened up 3 spots. The next 3 evles waiting in 
+queue are allowed in. 
+
+4. There is a semaphore Wait() in the sleep method. The sleep method 
+waits for a signal from either the 3rd elf or the last reindeer. The method 
+will not continue until the signal is recieved and the semaphore can 
+continue. 
+
+5. In WaitOthers(), it always checks to see if that reindeer is the last 
+reindeer. If it is not, then it will just wait for the sleigh. If it is then
+it will signal santa. The portion that adds to the reindeer that have been
+recieved is in a CS that only allows one reindeer to modify at a time. 
+There is no possible way for the reindeer to signal Santa unless it is the 
+last one. 
+
+6. In the sleep statement. After Santa is woken up it checks first to see 
+if all the reindeer are there, then to see if there are 3 elves waiting. If 
+there are all the reindeers Santa will always go into delivering presents 
+mode. The method actually returns 1 if it is the reindeer, and it returns 
+0 if it is the elves. thread.cpp uses this information to choose what 
+santa needs to do. 
+
+7. There is a wait statment at wait others, when that finishes then all the 
+reindeers go to waiting until the sleigh is attached. Then santa signal it is 
+time to deliver presents. There is another semaphore in there to make sure 
+that all the reindeer are attached and no race conditions occur. Then all the 
+reindeer wait at flyoff with a wait call until Santa signals that they are done 
+with their delivery of presents. It is all based on signals from santa and 
+waiting on semaphores from the reindeer. They have to wait on what santa says. 
+
+8. When santa is attaching the sleigh and delivering toys, the elves signal 
+Santa so when he gets back they will be next in queue (unless the reindeer 
+have such a short vacation). When he is attaching the reindeer and delivering 
+presents all his attention is put there and he really doesn't care what the 
+elves have to say.  
